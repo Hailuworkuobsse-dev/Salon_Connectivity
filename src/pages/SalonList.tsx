@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Clock, Phone } from 'lucide-react';
+import { useSalons } from '../queries/salons';
 
 export default function SalonList() {
+  const { data: salons, isLoading, error } = useSalons();
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-8">
@@ -22,18 +25,22 @@ export default function SalonList() {
         </div>
       </div>
 
+      {isLoading && <p>Loading salons...</p>}
+      {error && <p className="text-red-500">Error fetching salons: {error.message}</p>}
+
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Placeholder salon cards - will be populated from database */}
-        {[1, 2, 3].map((i) => (
-          <Link key={i} to={`/salons/${i}`} className="block">
+        {salons?.map((salon) => (
+          <Link key={salon.id} to={`/salons/${salon.id}`} className="block">
             <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="h-48 bg-gray-200"></div>
+              <div className="h-48 bg-gray-200">
+                {salon.logo_url && <img src={salon.logo_url} alt={salon.name} className="w-full h-full object-cover" />}
+              </div>
               <div className="p-4">
-                <h3 className="text-xl font-semibold mb-2">Salon Name {i}</h3>
+                <h3 className="text-xl font-semibold mb-2">{salon.name}</h3>
                 <div className="space-y-2 text-gray-600">
                   <div className="flex items-center">
                     <MapPin className="w-4 h-4 mr-2" />
-                    <span>123 Main St, City</span>
+                    <span>{salon.address}</span>
                   </div>
                   <div className="flex items-center">
                     <Clock className="w-4 h-4 mr-2" />
@@ -41,7 +48,7 @@ export default function SalonList() {
                   </div>
                   <div className="flex items-center">
                     <Phone className="w-4 h-4 mr-2" />
-                    <span>(555) 123-4567</span>
+                    <span>{salon.contact_phone}</span>
                   </div>
                 </div>
               </div>

@@ -1,8 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Calendar, Star } from 'lucide-react';
+import { useSalons } from '../queries/salons';
 
 export default function Home() {
+  const { data: salons, isLoading, error } = useSalons();
+  const featuredSalons = salons?.slice(0, 3);
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="text-center py-12">
@@ -48,13 +52,18 @@ export default function Home() {
         <h2 className="text-2xl font-bold text-center mb-8">
           Featured Salons
         </h2>
+        {isLoading && <p>Loading featured salons...</p>}
+        {error && <p className="text-red-500">Error fetching salons: {error.message}</p>}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Placeholder for featured salons - will be populated from database */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="h-48 bg-gray-200 rounded-lg mb-4"></div>
-            <h3 className="font-semibold">Loading...</h3>
-            <p className="text-gray-600">Please wait...</p>
-          </div>
+          {featuredSalons?.map((salon) => (
+            <div key={salon.id} className="bg-gray-50 rounded-lg p-4">
+              <div className="h-48 bg-gray-200 rounded-lg mb-4">
+                {salon.logo_url && <img src={salon.logo_url} alt={salon.name} className="w-full h-full object-cover" />}
+              </div>
+              <h3 className="font-semibold">{salon.name}</h3>
+              <p className="text-gray-600">{salon.address}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
